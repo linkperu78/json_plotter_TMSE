@@ -9,9 +9,9 @@
 
 ## Prerequisites
 
-To run this project, you'll need the following Python packages. You can install them using `pip` ["pip install"]:
-tkinter
-tkinterdnd2
+To run this project, you'll need the following Python packages. You can install them using `pip` ["pip install"]:  
+tkinter  
+tkinterdnd2  
 matplotlib
 
 ## Summary
