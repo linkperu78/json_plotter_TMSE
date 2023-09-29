@@ -24,7 +24,7 @@ matplotlib
 <html>
 <head>
   <script type="module">
-    import 'https://cdn.jsdelivr.net/npm/@github/clipboard-copy-element@1.0.8/dist/clipboard-copy.js';
+    import '@github/clipboard-copy-element';
 
     document.addEventListener('DOMContentLoaded', () => {
       const clipboardButton = document.querySelector('.clipboard-button');
