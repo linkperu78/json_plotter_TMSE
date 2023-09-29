@@ -130,6 +130,7 @@ venv.bak/
 
 # Folders
 /json_files
+/json
 
 # Spyder project settings
 .spyderproject

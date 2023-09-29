@@ -1,4 +1,4 @@
-import numpy as np
+#import numpy as np
 import json
 import os
 import tkinter as tk
@@ -7,17 +7,22 @@ from tkinterdnd2 import DND_FILES, TkinterDnD
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import datetime
+from matplotlib.dates import DateFormatter
 
 # ------------------------------------------------------------------------------------
 # Functions for User Interface
 # ------------------------------------------------------------------------------------
 
 # Update the dictionary key with
-def update_dictionary(array_paths):
+def update_dictionary(new_array_paths):
 
-    for new_file in array_paths:
-        print(f"New values in dictionary from = {new_file}")
+    for new_file in new_array_paths:
+        #print(f"New values in dictionary from = {new_file}")
         listb.insert("end", f"{os.path.basename(new_file)}\n")
+        my_temp_dictionary = {
+            'test' : 1
+        }
+        my_temp_dictionary.pop('test')
 
         with open(new_file, 'r') as file:
             data = json.load(file)
@@ -25,20 +30,28 @@ def update_dictionary(array_paths):
 
             for attempt_data in temp_array_dict:
                 key = attempt_data['I']
-                fecha = attempt_data['F']
+                fecha = int(attempt_data['F'])
                 valor = attempt_data['P']
                 
-
-                if not key in my_dictionary.keys():
-                    temp_dict = {
-                        'Fecha' : [fecha],
-                        'Valor' : [valor]
+                if not key in my_temp_dictionary.keys():
+                    my_temp_dictionary[key]={
+                        'Fecha' :[],
+                        'Valor' :[]
                     }
-                    my_dictionary[key] = temp_dict
-                else:
-                    my_dictionary[key]['Fecha'].append(fecha)
-                    my_dictionary[key]['Valor'].append(valor)
-                    #my_dictionary[key].extend(data)
+                my_temp_dictionary[key]['Fecha'].append(fecha)
+                my_temp_dictionary[key]['Valor'].append(valor)
+
+        for key in my_temp_dictionary.keys():
+            
+            if not key in my_dictionary.keys():
+                my_dictionary[key] = {
+                    'Fecha' : [],
+                    'Valor' : []
+                }
+            temp_data = my_temp_dictionary[key]['Valor']
+            temp_date = my_temp_dictionary[key]['Fecha']
+            my_dictionary[key]['Fecha'].append(temp_date)
+            my_dictionary[key]['Valor'].append(temp_data)
 
     combo['values'] = list(my_dictionary.keys())
 
@@ -65,8 +78,6 @@ def button_event_fileex():
         initialdir="",
         multiple = True
     )
-    for path in file_paths:
-        print(f" - {path}\n")
     new_path = []
 
     for attempt_data in file_paths:
@@ -90,40 +101,61 @@ def button_hard_reset():
 
 def on_combobox_select(event):
     selected_value = combo_var.get()
-    print(f"Selected value: {selected_value} and {event}")
-    my_date_array = []
-    array_date = my_dictionary[selected_value]['Fecha']
-    for date in array_date:
-        date_int = int(date)
-        my_date_array.append(date_int)
-    max_fecha = max(my_date_array)
-    min_fecha = min(my_date_array)
+    array_array_date      = my_dictionary[selected_value]['Fecha']
+    array_array_value     = my_dictionary[selected_value]['Valor']
+    print(array_array_value)
 
-    date_obj = datetime.datetime.fromtimestamp(max_fecha)
-    max_date = date_obj.strftime("%H:%M:%S %d/%m/%Y")
-    date_obj = datetime.datetime.fromtimestamp(min_fecha)
-    min_date = date_obj.strftime("%H:%M:%S %d/%m/%Y")
+    max_fecha = [] 
 
-    my_value_array = my_dictionary[selected_value]['Valor']
-    
-    print(f"{min_date}  -  {max_date}")
+    iterator = 0
+    for array_date in array_array_date:
+        max_ = max(array_date)
+        max_fecha.append([max_,iterator])
+        iterator+=1
+    #print(max_fecha)
+    ordered_data = [index[1] for index in sorted(max_fecha, key=max)]
+
+
+    ordered_time_array      = []
+    ordered_value_array     = []
+    for index in ordered_data:
+        new_time_array = array_array_date[index]
+        new_data_array = array_array_value[index]
+        ordered_time_array.append(new_time_array)
+        ordered_value_array.append(new_data_array)
+
+    x_axis = []
+    for timestamps in ordered_time_array:
+        x_axis.extend([datetime.datetime.fromtimestamp(ts) for ts in timestamps])
+
+    #x_axis = sum( ordered_time_array, [] )
+    y_axis = sum( ordered_value_array, [] )
+
     if True:
         # Clear the previous plot
         ax.clear()
         
         # Plot the new data
-        ax.plot(my_date_array, my_value_array)
+        ax.plot(x_axis, y_axis)
         ax.set_xlabel('Tiempo')
         ax.set_ylabel(f"{selected_value}")
         ax.set_title(f'{selected_value}')
         
+        ax.xaxis.set_major_formatter(DateFormatter('%d %H:%M:%S'))
+
+        # Rotate x-axis labels for better readability (optional)
+        plt.xticks(rotation=15)
+
         # Update the canvas
         canvas.draw()
 
 # -----------------------------------------------
 # -------------- MAIN WINDOW --------------------
 root = TkinterDnD.Tk()
-root.geometry("800x600")
+
+# Make the window resizable
+root.geometry("1024x800")
+
 root.title("App Layout")
 # -----------------------------------------------
 
@@ -134,15 +166,14 @@ root.title("App Layout")
 # ------------------------------------------------------------------------------------
 
 # Frame that expands over the entire app
-
 outer_frame = ttk.Frame(root, borderwidth=2, relief="solid")
 outer_frame.grid(row=0, column=0, sticky='nsew')
-#outer_frame.grid_rowconfigure(0, weight=1)
-#outer_frame.grid_columnconfigure(0, weight=1)
 
+# Configure row and column weights for resizing
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(0, weight=1)
 
 # ROW 1
-
 file_drop_canvas = tk.Canvas(outer_frame)
 file_drop_canvas.grid(row=0, column=0, sticky='nsew', pady=10, padx=10)
 
@@ -153,7 +184,6 @@ listb.dnd_bind('<<Drop>>', on_drop)
 
 
 # ROW 2
-
 button_frame = ttk.Frame(outer_frame)
 button_frame.grid(row=1, column=0, pady=10)
 
@@ -186,11 +216,11 @@ fig, ax = plt.subplots()
 # Create a canvas to display the plot
 canvas = FigureCanvasTkAgg(fig, master=graph_frame)
 canvas_widget = canvas.get_tk_widget()
-canvas_widget.pack(fill=tk.BOTH, expand=1)
+canvas_widget.pack(fill=tk.BOTH, expand=True)
 
 
-my_dictionary = {'test':'hola'}
+my_dictionary = {'index': 0}
 my_files = []
 if __name__ == "__main__":
-    my_dictionary.pop('test')
+    my_dictionary.pop('index')
     root.mainloop()
