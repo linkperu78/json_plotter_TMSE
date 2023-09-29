@@ -20,32 +20,6 @@ matplotlib
 
 
 # Testing copy to clipboard
-<!DOCTYPE html>
-<html>
-<head>
-<script type="module" src="./node_modules/@github/clipboard-copy-element/dist/index.js">
-    document.addEventListener('DOMContentLoaded', () => {
-      const clipboardButton = document.querySelector('.clipboard-button');
-      const codeBlock = document.querySelector('.code-block');
-
-      clipboardButton.addEventListener('clipboard-copy', () => {
-        console.log('Text copied to clipboard!');
-      });
-
-      clipboardButton.addEventListener('clipboard-error', () => {
-        console.error('Failed to copy text to clipboard.');
-      });
-
-      clipboardButton.addEventListener('click', () => {
-        clipboardButton.copy(codeBlock);
-      });
-    });
-</script>
-</head>
-<body>
-  <div>
-    <pre class="code-block">This is the text you want to copy.</pre>
-    <button class="clipboard-button">Copy</button>
-  </div>
-</body>
-</html>
+```js
+import '@github/clipboard-copy-element'
+```
