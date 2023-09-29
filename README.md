@@ -23,6 +23,7 @@ matplotlib
 <!DOCTYPE html>
 <html>
 <head>
+<script type="module" src="./node_modules/@github/clipboard-copy-element/dist/index.js">
     document.addEventListener('DOMContentLoaded', () => {
       const clipboardButton = document.querySelector('.clipboard-button');
       const codeBlock = document.querySelector('.code-block');
@@ -39,6 +40,7 @@ matplotlib
         clipboardButton.copy(codeBlock);
       });
     });
+</script>
 </head>
 <body>
   <div>
